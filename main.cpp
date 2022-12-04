@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define OVERFLOW -1
+#include <queue>
+#include <iostream>
+using namespace std;
 #define TRUE 1
 #define FALSE 0
-#define ElemType int
+typedef int ElemType;
 typedef int Status;
 typedef int RcdType;
 typedef struct BBSTNode {
@@ -61,7 +63,7 @@ void updateHeight(BBSTree& root)		//更新结点高度
 BBSTree SearchAVL(BBSTree root, ElemType target)
 {
 	if (root == nullptr)
-		return FALSE;
+		return NULL;
 	if (target == root->data)
 	{
 		return root;
@@ -93,6 +95,39 @@ void R_Rotate(BBSTree& root)
 	root = lc;					//root指向新的根节点lc
 }
 
+Status L_Check(BBSTree& root)
+{
+	if (getBalanceFactor(root) == 2)
+	{
+		if (getBalanceFactor(root->lchild) == 1)		//LL型
+		{
+			R_Rotate(root);
+		}
+		if (getBalanceFactor(root->lchild) == -1)		//LR型
+		{
+			L_Rotate(root->lchild);
+			R_Rotate(root);
+		}
+	}
+	return TRUE;
+}
+
+Status R_Check(BBSTree& root)
+{
+	if (getBalanceFactor(root) == -2)
+	{
+		if (getBalanceFactor(root->rchild) == -1)		//RR型
+		{
+			L_Rotate(root);
+		}
+		if (getBalanceFactor(root->rchild) == 1)		//RL型
+		{
+			R_Rotate(root->rchild);
+			L_Rotate(root);
+		}
+	}
+	return TRUE;
+}
 Status InsertAVL(BBSTree& root, RcdType value)
 {
 	if (root == nullptr)
@@ -108,12 +143,55 @@ Status InsertAVL(BBSTree& root, RcdType value)
 	{
 		InsertAVL(root->lchild, value);
 		updateHeight(root);
-		if (getBalanceFactor(root) == 2)
+		L_Check(root);
+		return TRUE;
+	}
+	else						//插入的值比结点值大
+	{
+		InsertAVL(root->rchild, value);
+		updateHeight(root);
+		R_Check(root);
+		return TRUE;
+	}
+}
+
+BBSTree CreateAVL(ElemType* data,int n)
+{
+	BBSTree root = nullptr;
+	for (int i = 0; i < n; i++)
+	{
+		InsertAVL(root, data[i]);
+	}
+	return root;
+}
+
+void LayerOrder(BBSTree root)
+{
+	queue<BBSTNode*>q;
+	q.push(root);
+	while (!q.empty())
+	{
+		BBSTree now = q.front();
+		q.pop();
+		cout << now->data;
+		if (now->lchild != nullptr)
 		{
-			if (getBalanceFactor(root->lchild) == 1)		//LL型
-			{
-				R_Rotate(root);
-			}
+			q.push(now->lchild);
+		}
+		if (now->rchild != nullptr)
+		{
+			q.push(now->rchild);
 		}
 	}
+}
+
+
+int main()
+{
+	BBSTree test1 = nullptr;
+	int num = 8;
+	int arr[10] = { 1,2,3,4,5,6,7,8 };
+	test1 = CreateAVL(arr, 8);
+	LayerOrder(test1);
+	return TRUE;
 }
