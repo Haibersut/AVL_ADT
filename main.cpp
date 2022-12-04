@@ -58,7 +58,7 @@ void updateHeight(BBSTree& root)		//更新结点高度
 	root->height = max(getHeight(root->lchild), getHeight(root->rchild)) + 1;
 }
 
-BBSTree Searchroot(BBSTree root, ElemType target)
+BBSTree SearchAVL(BBSTree root, ElemType target)
 {
 	if (root == nullptr)
 		return FALSE;
@@ -68,7 +68,27 @@ BBSTree Searchroot(BBSTree root, ElemType target)
 	}
 	if (target < root->data)
 	{
-		return Searchroot(root->lchild, target);
+		return SearchAVL(root->lchild, target);
 	}
-	return Searchroot(root->rchild, target);
+	return SearchAVL(root->rchild, target);
+}
+
+void L_Rotate(BBSTree& root)
+{
+	BBSTree r_temp = root->rchild;	//r_temp指向root结点的右孩子
+	root->rchild = r_temp->lchild;	//root的右子树置为r_temp的左子树
+	r_temp->lchild = root;			//将root结点(原先的根节点)置为r_temp结点的左孩子
+	updateHeight(root);
+	updateHeight(r_temp);
+	root = r_temp;					//root指向新的根节点
+}
+
+void R_Rotate(BBSTree& root)
+{
+	BBSTree l_temp = root->rchild;	//l_temp指向root结点的左孩子
+	root->rchild = l_temp->lchild;	//root的左子树置为l_temp的右子树
+	l_temp->lchild = root;			//将root结点(原先的根节点)置为l_temp结点的右孩子
+	updateHeight(root);
+	updateHeight(l_temp);
+	root = l_temp;					//root指向新的根节点
 }
