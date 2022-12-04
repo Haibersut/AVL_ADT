@@ -13,16 +13,16 @@ typedef struct BBSTNode {
 	struct BBSTNode* lchild, * rchild;
 }*BBSTree;
 
-Status InitAVL(BBSTree &root, RcdType value)
+BBSTree newAVLNode(RcdType value)
 {
 	BBSTree Node = new BBSTNode();
 	if (Node == nullptr)
-		return OVERFLOW;
+		return nullptr;
 	Node->data = value;
 	Node->bf = 0;
 	Node->height = 1;
 	Node->lchild = Node->rchild = nullptr;
-	return TRUE;
+	return Node;
 }
 
 Status DestroyAVL(BBSTree& root)
@@ -50,7 +50,7 @@ Status getHeight(BBSTree root)		//获得当前结点高度
 Status getBalanceFactor(BBSTree &root)		//计算平衡因子
 {
 	root->bf = getHeight(root->lchild) - getHeight(root->rchild);
-	return TRUE;
+	return root->bf;
 }
 
 void updateHeight(BBSTree& root)		//更新结点高度
@@ -75,20 +75,45 @@ BBSTree SearchAVL(BBSTree root, ElemType target)
 
 void L_Rotate(BBSTree& root)
 {
-	BBSTree r_temp = root->rchild;	//r_temp指向root结点的右孩子
-	root->rchild = r_temp->lchild;	//root的右子树置为r_temp的左子树
-	r_temp->lchild = root;			//将root结点(原先的根节点)置为r_temp结点的左孩子
+	BBSTree rc = root->rchild;	//rc指向root结点的右孩子
+	root->rchild = rc->lchild;	//将rc的左子树设为root的右子树
+	rc->lchild = root;			//将root(原先的根节点)设为rc的左子树
 	updateHeight(root);
-	updateHeight(r_temp);
-	root = r_temp;					//root指向新的根节点
+	updateHeight(rc);
+	root = rc;					//root指向新的根节点rc
 }
 
 void R_Rotate(BBSTree& root)
 {
-	BBSTree l_temp = root->rchild;	//l_temp指向root结点的左孩子
-	root->rchild = l_temp->lchild;	//root的左子树置为l_temp的右子树
-	l_temp->lchild = root;			//将root结点(原先的根节点)置为l_temp结点的右孩子
+	BBSTree lc = root->rchild;	//lc指向root结点的左孩子
+	root->rchild = lc->lchild;	//将lc的右子树设为root的左子树
+	lc->lchild = root;			//将root(原先的根节点)设为lc的右子树
 	updateHeight(root);
-	updateHeight(l_temp);
-	root = l_temp;					//root指向新的根节点
+	updateHeight(lc);
+	root = lc;					//root指向新的根节点lc
+}
+
+Status InsertAVL(BBSTree& root, RcdType value)
+{
+	if (root == nullptr)
+	{
+		root = newAVLNode(value);
+		if (root != nullptr)
+		{
+			return TRUE;
+		}
+		return FALSE;
+	}
+	if (value < root->data)		//插入的值比结点值小
+	{
+		InsertAVL(root->lchild, value);
+		updateHeight(root);
+		if (getBalanceFactor(root) == 2)
+		{
+			if (getBalanceFactor(root->lchild) == 1)		//LL型
+			{
+				R_Rotate(root);
+			}
+		}
+	}
 }
