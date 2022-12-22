@@ -15,7 +15,7 @@ typedef struct BBSTNode {
 	struct BBSTNode* lchild, * rchild;
 }*BBSTree;
 
-BBSTree newAVLNode(RcdType value)
+BBSTree newNode(RcdType value)
 {
 	BBSTree Node = new BBSTNode();
 	if (Node == nullptr)
@@ -128,11 +128,73 @@ Status R_Check(BBSTree& root)
 	}
 	return TRUE;
 }
-Status InsertAVL(BBSTree& root, RcdType value)
+
+BBSTree minValueNode(BBSTree node)
+{
+	BBSTree min = node;
+	while (min->lchild != NULL)
+	{
+		min = min->lchild;
+	}
+	return min;
+}
+
+Status ChangeNode(BBSTree& root, ElemType value1, ElemType value2)
+{
+	root = SearchAVL(root, value1);
+	if (root == nullptr)
+		return FALSE;
+	else
+	{
+		root->data = value2;
+		return TRUE;
+	}
+}
+
+BBSTree DeleteNode(BBSTree &root, RcdType value)
+{
+	if (root == NULL)
+		return root;
+	if (root->data > value)
+		return DeleteNode(root->lchild, value);
+	else if (root->data < value)
+		return DeleteNode(root->rchild, value);
+	else
+	{
+		if ((root->lchild == NULL) || (root->rchild == NULL))
+		{
+			BBSTree temp = root->lchild ? root->lchild : root->rchild;
+			if (temp == NULL)
+			{
+				temp = root;
+				root = nullptr;
+			}
+			else
+			{
+				root = temp;
+				free(temp);
+			}
+		}
+		else
+		{
+			BBSTree temp = minValueNode(root->rchild);
+			root->data = temp->data;
+			DeleteNode(root->rchild, temp->data);
+		}
+	}
+	if (root == NULL)
+		return root;
+	updateHeight(root);
+	L_Check(root);
+	R_Check(root);
+	return root;
+}
+
+Status InsertNode(BBSTree& root, RcdType value)
 {
 	if (root == nullptr)
 	{
-		root = newAVLNode(value);
+		root = newNode(value);
 		if (root != nullptr)
 		{
 			return TRUE;
@@ -141,14 +203,14 @@ Status InsertAVL(BBSTree& root, RcdType value)
 	}
 	if (value < root->data)		//插入的值比结点值小
 	{
-		InsertAVL(root->lchild, value);
+		InsertNode(root->lchild, value);
 		updateHeight(root);
 		L_Check(root);
 		return TRUE;
 	}
 	else						//插入的值比结点值大
 	{
-		InsertAVL(root->rchild, value);
+		InsertNode(root->rchild, value);
 		updateHeight(root);
 		R_Check(root);
 		return TRUE;
@@ -160,7 +222,7 @@ BBSTree CreateAVL(ElemType* data,int n)
 	BBSTree root = nullptr;
 	for (int i = 0; i < n; i++)
 	{
-		InsertAVL(root, data[i]);
+		InsertNode(root, data[i]);
 	}
 	return root;
 }
@@ -192,6 +254,10 @@ int main()
 	int num = 8;
 	int arr[10] = { 1,2,3,4,5,6,7,8 };
 	test1 = CreateAVL(arr, 8);
+	LayerOrder(test1);
+	//ChangeNode(test1, 1, 100);
+	DeleteNode(test1, 4);
+	printf("\n");
 	LayerOrder(test1);
 	return TRUE;
 }
