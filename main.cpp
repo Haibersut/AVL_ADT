@@ -27,7 +27,7 @@ BBSTree newNode(RcdType value)
 
 Status DestroyBBSTree(BBSTree& root)
 {
-	if (root == NULL)
+	if (root == nullptr)
 	{
 		return FALSE;
 	}
@@ -44,7 +44,7 @@ Status BBSTreeDepth(BBSTree T)
 {
 	int depthLeft = 0;
 	int depthRight = 0;
-	if (T == NULL)
+	if (T == nullptr)
 	{
 		return 0;	//空二叉树深度为0
 	}
@@ -56,9 +56,17 @@ Status BBSTreeDepth(BBSTree T)
 	}
 }
 
-Status SizeAVL()
+void CountLeaf(BBSTree T, RcdType &count)		//用递归方法计算叶子结点个数
 {
-	return TRUE;
+	if (T != NULL)
+	{
+		if (T->rchild == NULL && T->rchild == NULL)
+		{
+			count++;
+			CountLeaf(T->lchild, count);
+			CountLeaf(T->rchild, count);
+		}
+	}
 }
 
 Status max(int value1, int value2)
@@ -155,7 +163,7 @@ Status R_Check(BBSTree& root)
 BBSTree minValueNode(BBSTree node)
 {
 	BBSTree min = node;
-	while (min->lchild != NULL)
+	while (min->lchild != nullptr)
 	{
 		min = min->lchild;
 	}
