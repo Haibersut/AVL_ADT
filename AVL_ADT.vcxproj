@@ -127,7 +127,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="balancecheck.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="numcheck.cpp" />
+    <ClCompile Include="operation.cpp" />
+    <ClCompile Include="ui.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
