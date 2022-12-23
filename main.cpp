@@ -10,10 +10,9 @@ typedef int Status;
 typedef int RcdType;
 typedef struct BBSTNode {
 	RcdType data;
-	int bf;			//平衡因子
 	int height;		//结点高度，用于计算平衡因子
 	struct BBSTNode* lchild, * rchild;
-}*BBSTree;
+}BBSTNode, * BBSTree;
 
 BBSTree newNode(RcdType value)
 {
@@ -21,15 +20,40 @@ BBSTree newNode(RcdType value)
 	if (Node == nullptr)
 		return nullptr;
 	Node->data = value;
-	Node->bf = 0;
 	Node->height = 1;
 	Node->lchild = Node->rchild = nullptr;
 	return Node;
 }
 
-Status DestroyAVL(BBSTree& root)
+Status DestroyBBSTree(BBSTree& root)
 {
+	if (root == NULL)
+	{
+		return FALSE;
+	}
+	else
+	{
+		DestroyBBSTree(root->lchild);
+		DestroyBBSTree(root->rchild);
+		free(root);
+	}
 	return TRUE;
+}
+
+Status BBSTreeDepth(BBSTree T)
+{
+	int depthLeft = 0;
+	int depthRight = 0;
+	if (T == NULL)
+	{
+		return 0;	//空二叉树深度为0
+	}
+	else
+	{
+		depthLeft = BBSTreeDepth(T->lchild);
+		depthRight = BBSTreeDepth(T->rchild);
+		return (depthLeft > depthRight ? depthLeft : depthRight) + 1;	//左右子树深度的较大值+1
+	}
 }
 
 Status SizeAVL()
@@ -51,8 +75,7 @@ Status getHeight(BBSTree root)		//获得当前结点高度
 
 Status getBalanceFactor(BBSTree &root)		//计算平衡因子
 {
-	root->bf = getHeight(root->lchild) - getHeight(root->rchild);
-	return root->bf;
+	return getHeight(root->lchild) - getHeight(root->rchild);
 }
 
 void updateHeight(BBSTree& root)		//更新结点高度
