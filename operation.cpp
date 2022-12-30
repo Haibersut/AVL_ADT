@@ -3,30 +3,11 @@
 #include <queue>
 #include <string.h>
 #include <iostream>
+#include "general.h"
+#include "queue.h"
+#include "balancecheck.h"
 using namespace std;
-#define TRUE 1
-#define FALSE 0
-typedef int ElemType;
-typedef int Status;
-typedef int RcdType;
-typedef struct BBSTNode {
-	RcdType data;
-	int height;		//结点高度，用于计算平衡因子
-	struct BBSTNode* lchild, * rchild;
-}BBSTNode, * BBSTree;
 
-//balancecheck函数声明
-Status max(int value1, int value2);
-Status getHeight(BBSTree root);
-Status getBalanceFactor(BBSTree root);
-void updateHeight(BBSTree& root);
-void L_Rotate(BBSTree& root);
-void R_Rotate(BBSTree& root);
-Status L_Check(BBSTree& root);
-Status R_Check(BBSTree& root);
-void HeightReset_L(BBSTree& T);
-void HeightReset_R(BBSTree& T);
-BBSTree minValueNode(BBSTree node);
 
 BBSTree newNode(RcdType value)
 {
@@ -53,6 +34,50 @@ void DestroyBBSTree(BBSTree& root)
 	}
 }
 
+Status visit(int i)
+{
+	if (i == 0)
+		printf("#");
+	else
+		printf("%d ", i);
+	return OK;
+}
+
+Status visit2(int i)
+{
+	return i;
+}
+
+Status PreOrderTraverse(BBSTree T, Status(*visit)(ElemType e))
+{		//先序遍历二叉树T, visit是对数据元素操作的应用函数
+	if (T == NULL) return OK;
+	if (visit(T->data) == ERROR)
+		return ERROR;							//(1)访问结点的数据域
+	if (PreOrderTraverse(T->lchild, visit) == ERROR)
+		return ERROR;							//(2)递归遍历T的左子树
+	return PreOrderTraverse(T->rchild, visit);	//(3)递归遍历T的右子树
+}
+
+Status InOrderTraverse(BBSTree T, Status(*visit)(ElemType e))
+{		//中序遍历二叉树T, visit是对数据元素操作的应用函数
+	if (T == NULL) return OK;
+	if (InOrderTraverse(T->lchild, visit) == ERROR)
+		return ERROR;							//(1)递归遍历T的左子树
+	if (visit(T->data) == ERROR)
+		return ERROR;							//(2)访问结点的数据域
+	return InOrderTraverse(T->rchild, visit);	//(3)递归遍历T的右子树
+}
+
+Status PostOrderTraverse(BBSTree T, Status(*visit)(ElemType e))
+{		//中序遍历二叉树T, visit是对数据元素操作的应用函数
+	if (T == NULL) return OK;
+	if (PostOrderTraverse(T->lchild, visit) == ERROR)
+		return ERROR;							//(1)递归遍历T的左子树
+	if (PostOrderTraverse(T->rchild, visit) == ERROR)
+		return ERROR;							//(2)递归遍历T的右子树
+	return visit(T->data);	                    //(3)访问结点的数据域
+}
+
 Status BBSTreeDepth(BBSTree T)
 {
 	int depthLeft = 0;
@@ -71,9 +96,10 @@ Status BBSTreeDepth(BBSTree T)
 
 void CountLeaf(BBSTree T, RcdType& count)		//用递归方法计算叶子结点个数
 {
-	if ((T->rchild == NULL) && (T->rchild == NULL))
+	if (T != NULL)
 	{
-		count++;
+		if ((T->lchild == NULL) && (T->rchild == NULL))
+			count++;
 		CountLeaf(T->lchild, count);
 		CountLeaf(T->rchild, count);
 	}
@@ -157,7 +183,7 @@ Status InsertNode(BBSTree& root, RcdType value)
 		}
 		return FALSE;
 	}
-	if (value < root->data)		//插入的值比结点值小
+	if (value < root->data)					//插入的值比结点值小
 	{
 		InsertNode(root->lchild, value);
 		updateHeight(root);
@@ -173,15 +199,14 @@ Status InsertNode(BBSTree& root, RcdType value)
 	}
 }
 
-BBSTree CreateAVL(ElemType* data, int n)
+BBSTree CreateAVL(LQueue &Q)
 {
 	BBSTree root = NULL;
-	for (int i = 0; i < n; i++)
+	int data = 0;
+	while (!QueueEmpty_LQ(Q))
 	{
-		if (data[i] != 0)
-		{
-			InsertNode(root, data[i]);
-		}
+		DeQueue_LQ(Q, data);
+		InsertNode(root, data);
 	}
 	return root;
 }
@@ -194,7 +219,7 @@ void LayerOrder(BBSTree root)
 	{
 		BBSTree now = q.front();
 		q.pop();
-		cout << now->data;
+		printf("%d ", now->data);
 		if (now->lchild != NULL)
 		{
 			q.push(now->lchild);
@@ -244,36 +269,76 @@ Status MergeBBSTree(BBSTree& T1, BBSTree& T2)
 			q.push(temp->rchild);
 		}
 	}
-	free(T2);
+	BBSTree temp2 = T2;
+	T2 = NULL;
+	free(temp2);
 	return TRUE;
 }
 
 BBSTree SplitBBSTree(BBSTree& T, ElemType value)
 {
-	BBSTree p = SearchAVL(T, value);
+	BBSTree p = T;
 	BBSTree newTree = NULL;
-	CopyBBSTree(p, newTree);
-	queue<BBSTree>q;
-	q.push(newTree);
-	while (!q.empty())
+	queue<BBSTNode*>q1;
+	queue<RcdType>q2;
+	q1.push(p);
+	while (!q1.empty())
 	{
-		BBSTree now = q.front();
-		q.pop();
-		DeleteNode(T, now->data);
+		BBSTree now = q1.front();
+		q1.pop();
+		q2.push(now->data);
 		if (now->lchild != NULL)
 		{
-			q.push(now->lchild);
+			q1.push(now->lchild);
 		}
 		if (now->rchild != NULL)
 		{
-			q.push(now->rchild);
+			q1.push(now->rchild);
 		}
 	}
-	HeightReset_L(T);
+	while (!q2.empty())
+	{
+		RcdType temp = q2.front();
+		q2.pop();
+		if (temp <= value)
+		{
+			InsertNode(newTree, temp);
+			DeleteNode(T, temp);
+		}
+	}
+	/*HeightReset_L(T);
 	HeightReset_R(T);
 	L_Check(T);
-	R_Check(T);
-	HeightReset_L(newTree);
-	HeightReset_R(newTree);
+	R_Check(T);*/
 	return newTree;
 }
+
+//BBSTree SplitBBSTree1(BBSTree& T, ElemType value)
+//{
+//	BBSTree p = SearchAVL(T, value);
+//	BBSTree newTree = NULL;
+//	CopyBBSTree(p, newTree);
+//	queue<BBSTree>q;
+//	q.push(newTree);
+//	while (!q.empty())
+//	{
+//		BBSTree now = q.front();
+//		q.pop();
+//		DeleteNode(T, now->data);
+//		if (now->lchild != NULL)
+//		{
+//			q.push(now->lchild);
+//		}
+//		if (now->rchild != NULL)
+//		{
+//			q.push(now->rchild);
+//		}
+//	}
+//	HeightReset_L(T);
+//	HeightReset_R(T);
+//	L_Check(T);
+//	R_Check(T);
+//	HeightReset_L(newTree);
+//	HeightReset_R(newTree);
+//	return newTree;
+//}

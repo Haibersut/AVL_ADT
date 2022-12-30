@@ -30,5 +30,25 @@
     <ClCompile Include="numcheck.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="queue.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="operation.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="numcheck.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="queue.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="general.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="balancecheck.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -118,6 +118,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,7 +132,15 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="numcheck.cpp" />
     <ClCompile Include="operation.cpp" />
+    <ClCompile Include="queue.cpp" />
     <ClCompile Include="ui.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="balancecheck.h" />
+    <ClInclude Include="operation.h" />
+    <ClInclude Include="general.h" />
+    <ClInclude Include="numcheck.h" />
+    <ClInclude Include="queue.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

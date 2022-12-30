@@ -1,17 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include "general.h"
 using namespace std;
-#define TRUE 1
-#define FALSE 0
-typedef int ElemType;
-typedef int Status;
-typedef int RcdType;
-typedef struct BBSTNode {
-	RcdType data;
-	int height;		//结点高度，用于计算平衡因子
-	struct BBSTNode* lchild, * rchild;
-}BBSTNode, * BBSTree;
 
 Status max(int value1, int value2)
 {
